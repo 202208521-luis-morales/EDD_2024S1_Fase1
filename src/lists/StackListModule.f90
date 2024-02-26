@@ -1,6 +1,6 @@
 MODULE StackListModule
    TYPE :: StackList
-      INTEGER, ALLOCATABLE :: elementos(:)
+      CHARACTER(len=:), ALLOCATABLE :: elementos(:)
       INTEGER :: tope
    END TYPE StackList
 
@@ -16,7 +16,7 @@ MODULE StackListModule
 
    SUBROUTINE Push(stack, elemento)
       CLASS(StackList), INTENT(INOUT) :: stack
-      INTEGER, INTENT(IN) :: elemento
+      CHARACTER(len=:), allocatable, INTENT(IN) :: elemento
 
       IF (stack%tope < SIZE(stack%elementos)) THEN
          stack%tope = stack%tope + 1
@@ -28,7 +28,7 @@ MODULE StackListModule
 
    FUNCTION Pop(stack) RESULT(elemento)
       CLASS(StackList), INTENT(INOUT) :: stack
-      INTEGER :: elemento
+      CHARACTER(len=:), allocatable,  :: elemento
 
       IF (stack%tope > 0) THEN
          elemento = stack%elementos(stack%tope)

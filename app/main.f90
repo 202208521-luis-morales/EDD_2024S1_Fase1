@@ -1,42 +1,40 @@
 program MainProgram
   use json_module
   use ClientModule
-  USE LinkedListModule
-  USE QueueListModule
-  USE StackListModule
-  USE DoublyLinkedCircularListModule
+  USE ReceptionQueueListModule
 
   implicit none
 
-  type(Cliente), dimension(:), allocatable :: lista_clientes
-  TYPE(QueueList) :: miCola
-  TYPE(StackList) :: miStack
-  TYPE(DoublyLinkedCircularList) :: myList
+  type(Cliente), dimension(:), allocatable :: lista_clientes, clientsOnQueue
+  type(Cliente) :: newClient
+  TYPE(ReceptionQueue) :: L_ReceptionQueue
 
   integer :: opcion, subopcion, num_windows, i, step
-
-  CALL InitializeList(myList)
-
-  DO i = 1, 5
-    CALL InsertAtEnd(myList, i * 10)
-  END DO
-
-  PRINT *, "Values in the list:"
-  CALL PrintList(myList)
 
   step = 1
   call inicializar_datos(lista_clientes)
 
-  do i = 1, size(lista_clientes)
-    write(*,*) 'Cliente ', i
-    write(*,*) 'ID: ', lista_clientes(i)%id
-    write(*,*) 'Nombre: ', lista_clientes(i)%nombre
-    write(*,*) 'Imagen grande: ', lista_clientes(i)%img_g
-    write(*,*) 'Imagen pequeña: ', lista_clientes(i)%img_p
-    write(*,*)
-  end do
+  ! Crear Cola Recepción
+  CALL InitializeReceptionQueue(L_ReceptionQueue)
 
-  deallocate(lista_clientes)
+  DO i = 1, 5
+    newClient = lista_clientes(i)
+    CALL EnqueueReception(L_ReceptionQueue, newClient)
+  END DO
+
+  CALL GetReceptionQueueElements(L_ReceptionQueue, clientsOnQueue)
+
+
+  !do i = 1, size(lista_clientes)
+  !  write(*,*) 'Cliente ', i
+  !  write(*,*) 'ID: ', lista_clientes(i)%id
+  !  write(*,*) 'Nombre: ', lista_clientes(i)%nombre
+  !  write(*,*) 'Imagen grande: ', lista_clientes(i)%img_g
+  !  write(*,*) 'Imagen pequeña: ', lista_clientes(i)%img_p
+  !  write(*,*)
+  !end do
+
+  !deallocate(lista_clientes)
 
     DO
     CALL MostrarMenu()
