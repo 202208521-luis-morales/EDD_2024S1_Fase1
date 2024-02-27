@@ -2,7 +2,7 @@ MODULE ImagesSinglyLinkedListModule
   IMPLICIT NONE
 
   TYPE Node
-    INTEGER :: value
+    CHARACTER(:), ALLOCATABLE :: value
     TYPE(Node), POINTER :: next
   END TYPE Node
 
@@ -19,7 +19,7 @@ CONTAINS
 
   SUBROUTINE ImagesSinglyInsertAtEnd(list, newValue)
     TYPE(ImagesSinglyLinkedList), INTENT(INOUT) :: list
-    INTEGER, INTENT(IN) :: newValue
+    CHARACTER(:), ALLOCATABLE, INTENT(IN) :: newValue
     TYPE(Node), POINTER :: newNode, current
 
     ALLOCATE(newNode)

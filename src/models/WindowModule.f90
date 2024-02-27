@@ -1,5 +1,7 @@
 module WindowModule
   USE StackListModule
+  use ClientModule
+
   implicit none
 
   type Window
@@ -11,8 +13,8 @@ module WindowModule
   subroutine initializeWindow(windowData)
     type(Window), INTENT(OUT) :: windowData
     
-    windowData%windowClient = NULL()
-    call InicializarStack(imagesStack)
+    CALL InitializeClient(windowData%windowClient)
+    call InitializeStackList(windowData%imagesStack)
   end subroutine initializeWindow
 
 end module WindowModule

@@ -1,4 +1,4 @@
-MODULE SmallPrinterQueueListModule
+MODULE PrinterQueueListModule
   IMPLICIT NONE
 
   TYPE Node
@@ -6,21 +6,21 @@ MODULE SmallPrinterQueueListModule
     TYPE(Node), POINTER :: next
   END TYPE Node
 
-  TYPE :: SmallPrinterQueue
+  TYPE :: PrinterQueueList
     TYPE(Node), POINTER :: front
     TYPE(Node), POINTER :: rear
-  END TYPE SmallPrinterQueue
+  END TYPE PrinterQueueList
 
 CONTAINS
 
-  SUBROUTINE InitializeSmallPrinterQueue(queue)
-    TYPE(Queue), INTENT(OUT) :: queue
+  SUBROUTINE InitializePrinterQueue(queue)
+    TYPE(PrinterQueueList), INTENT(OUT) :: queue
     queue%front => NULL()
     queue%rear => NULL()
-  END SUBROUTINE InitializeSmallPrinterQueue
+  END SUBROUTINE InitializePrinterQueue
 
-  SUBROUTINE EnqueueBigPrinter(queue, newValue)
-    TYPE(Queue), INTENT(INOUT) :: queue
+  SUBROUTINE EnqueuePrinter(queue, newValue)
+    TYPE(PrinterQueueList), INTENT(INOUT) :: queue
     CHARACTER(len=:), ALLOCATABLE , INTENT(IN) :: newValue
     TYPE(Node), POINTER :: newNode
 
@@ -35,15 +35,15 @@ CONTAINS
     END IF
 
     queue%rear => newNode
-  END SUBROUTINE EnqueueBigPrinter
+  END SUBROUTINE EnqueuePrinter
 
-  FUNCTION DequeueBigPrinter(queue) RESULT(value)
-    TYPE(Queue), INTENT(INOUT) :: queue
+  FUNCTION DequeuePrinter(queue) RESULT(value)
+    TYPE(PrinterQueueList), INTENT(INOUT) :: queue
     CHARACTER(len=:), ALLOCATABLE :: value
     TYPE(Node), POINTER :: temp
 
     IF (.NOT. ASSOCIATED(queue%front)) THEN
-      PRINT *, "Error: Queue is empty"
+      PRINT *, "Error: PrinterQueueList is empty"
       STOP
     END IF
 
@@ -53,6 +53,6 @@ CONTAINS
 
     DEALLOCATE(temp)
 
-  END FUNCTION DequeueBigPrinter
+  END FUNCTION DequeuePrinter
 
-END MODULE SmallPrinterQueueListModule
+END MODULE PrinterQueueListModule

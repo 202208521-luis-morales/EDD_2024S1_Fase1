@@ -3,7 +3,7 @@ MODULE ClientsServedSinglyLinkedListModule
   IMPLICIT NONE
 
   TYPE Node
-    TYPE(Cliente): : value
+    TYPE(Cliente) :: value
     TYPE(Node), POINTER :: next
   END TYPE Node
 
@@ -13,12 +13,12 @@ MODULE ClientsServedSinglyLinkedListModule
 
 CONTAINS
 
-  SUBROUTINE SinglyInitializeList(list)
+  SUBROUTINE ClientsServedSinglyInitializeList(list)
     TYPE(ClientsServedSinglyLinkedList), INTENT(OUT) :: list
     list%head => NULL()
-  END SUBROUTINE SinglyInitializeList
+  END SUBROUTINE ClientsServedSinglyInitializeList
 
-  SUBROUTINE SinglyInsertAtEnd(list, newValue)
+  SUBROUTINE ClientsServedSinglyInsertAtEnd(list, newValue)
     TYPE(ClientsServedSinglyLinkedList), INTENT(INOUT) :: list
     type(Cliente), INTENT(IN) :: newValue
     TYPE(Node), POINTER :: newNode, current
@@ -36,21 +36,21 @@ CONTAINS
     ELSE
       list%head => newNode
     END IF
-  END SUBROUTINE SinglyInsertAtEnd
+  END SUBROUTINE ClientsServedSinglyInsertAtEnd
 
-  SUBROUTINE SinglyPrintList(list)
-    TYPE(ClientsServedSinglyLinkedList), INTENT(IN) :: list
-    TYPE(Node), POINTER :: current
+  !SUBROUTINE SinglyPrintList(list)
+  !  TYPE(ClientsServedSinglyLinkedList), INTENT(IN) :: list
+  !  TYPE(Node), POINTER :: current
 
-    IF (ASSOCIATED(list%head)) THEN
-      current => list%head
-      DO WHILE (ASSOCIATED(current))
-        PRINT *, "Value:", current%value
-        current => current%next
-      END DO
-    ELSE
-      PRINT *, "The list is empty"
-    END IF
-  END SUBROUTINE SinglyPrintList
+  !  IF (ASSOCIATED(list%head)) THEN
+  !    current => list%head
+  !    DO WHILE (ASSOCIATED(current))
+  !      PRINT *, "Value:", current%value
+  !      current => current%next
+  !    END DO
+  !  ELSE
+  !    PRINT *, "The list is empty"
+  !  END IF
+  !END SUBROUTINE SinglyPrintList
 
 END MODULE ClientsServedSinglyLinkedListModule

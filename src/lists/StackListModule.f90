@@ -1,56 +1,77 @@
 MODULE StackListModule
-   TYPE :: StackList
-      CHARACTER(len=:), ALLOCATABLE :: elementos(:)
-      INTEGER :: tope
-   END TYPE StackList
+  IMPLICIT NONE
 
-   CONTAINS
+  TYPE StackNode
+    CHARACTER(:), ALLOCATABLE :: nodeValue
+    TYPE(StackNode), POINTER :: nextNode
+  END TYPE StackNode
 
-   SUBROUTINE InicializarStack(stack, tamanoMaximo)
-      CLASS(StackList), INTENT(OUT) :: stack
-      INTEGER, INTENT(IN) :: tamanoMaximo
+  TYPE StackList
+    TYPE(StackNode), POINTER :: topNode
+  END TYPE StackList
 
-      ALLOCATE(stack%elementos(tamanoMaximo))
-      stack%tope = 0
-   END SUBROUTINE InicializarStack
+CONTAINS
 
-   SUBROUTINE Push(stack, elemento)
-      CLASS(StackList), INTENT(INOUT) :: stack
-      CHARACTER(len=:), allocatable, INTENT(IN) :: elemento
+  SUBROUTINE InitializeStackList(inputStackList)
+    TYPE(StackList), INTENT(OUT) :: inputStackList
+    inputStackList%topNode => NULL()
+  END SUBROUTINE InitializeStackList
 
-      IF (stack%tope < SIZE(stack%elementos)) THEN
-         stack%tope = stack%tope + 1
-         stack%elementos(stack%tope) = elemento
-      ELSE
-         PRINT *, 'Error: Stack lleno'
-      END IF
-   END SUBROUTINE Push
+  SUBROUTINE StackPush(inputStackList, newValue)
+    TYPE(StackList), INTENT(INOUT) :: inputStackList
+    CHARACTER(:), ALLOCATABLE, INTENT(IN) :: newValue
+    TYPE(StackNode), POINTER :: newNode
 
-   FUNCTION Pop(stack) RESULT(elemento)
-      CLASS(StackList), INTENT(INOUT) :: stack
-      CHARACTER(len=:), allocatable,  :: elemento
+    ALLOCATE(newNode)
+    ALLOCATE(CHARACTER(LEN(newValue)) :: newNode%nodeValue)
+    newNode%nodeValue = newValue
+    newNode%nextNode => inputStackList%topNode
 
-      IF (stack%tope > 0) THEN
-         elemento = stack%elementos(stack%tope)
-         stack%tope = stack%tope - 1
-      ELSE
-         PRINT *, 'Error: Stack vacio'
-         elemento = 0
-      END IF
-   END FUNCTION Pop
+    inputStackList%topNode => newNode
+  END SUBROUTINE StackPush
 
-   SUBROUTINE ImprimirStack(stack)
-      CLASS(StackList), INTENT(IN) :: stack
-      INTEGER :: i
+  FUNCTION StackPop(inputStackList) RESULT(poppedValue)
+    TYPE(StackList), INTENT(INOUT) :: inputStackList
+    CHARACTER(:), ALLOCATABLE :: poppedValue
+    TYPE(StackNode), POINTER :: tempNode
 
-      IF (stack%tope > 0) THEN
-         PRINT *, 'Contenido del Stack:'
-         DO i = 1, stack%tope
-            PRINT *, stack%elementos(i)
-         END DO
-      ELSE
-         PRINT *, 'Stack vacío'
-      END IF
-   END SUBROUTINE ImprimirStack
+    IF (ASSOCIATED(inputStackList%topNode)) THEN
+      poppedValue = inputStackList%topNode%nodeValue
+      tempNode => inputStackList%topNode
+      inputStackList%topNode => inputStackList%topNode%nextNode
+      DEALLOCATE(tempNode)
+    ELSE
+      PRINT *, "Error: Stack is empty"
+      STOP
+    END IF
+  END FUNCTION StackPop
+
+  FUNCTION IsStackEmpty(inputStackList) RESULT(empty)
+    TYPE(StackList), INTENT(IN) :: inputStackList
+    LOGICAL :: empty
+    empty = .NOT. ASSOCIATED(inputStackList%topNode)
+  END FUNCTION IsStackEmpty
+
+  FUNCTION GetStackValueAtPosition(inputStackList, position) RESULT(stackValue)
+    TYPE(StackList), INTENT(IN) :: inputStackList
+    INTEGER, INTENT(IN) :: position
+    CHARACTER(:), ALLOCATABLE :: stackValue
+    TYPE(StackNode), POINTER :: currentNode
+    INTEGER :: count
+
+    currentNode => inputStackList%topNode
+    count = 1
+
+    DO WHILE (ASSOCIATED(currentNode) .AND. count < position)
+      currentNode => currentNode%nextNode
+      count = count + 1
+    END DO
+
+    IF (count == position .AND. ASSOCIATED(currentNode)) THEN
+      stackValue = currentNode%nodeValue
+    ELSE
+      stackValue = "null"
+    END IF
+  END FUNCTION GetStackValueAtPosition
 
 END MODULE StackListModule

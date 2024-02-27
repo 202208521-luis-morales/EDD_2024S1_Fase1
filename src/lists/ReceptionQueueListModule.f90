@@ -40,7 +40,7 @@ CONTAINS
 
   FUNCTION DequeueReception(queue) RESULT(value)
     TYPE(ReceptionQueue), INTENT(INOUT) :: queue
-    type(Cliente), dimension(:), allocatable :: value
+    type(Cliente) :: value
     TYPE(Node), POINTER :: temp
 
     IF (.NOT. ASSOCIATED(queue%front)) THEN
@@ -80,4 +80,9 @@ CONTAINS
     END DO
   END SUBROUTINE GetReceptionQueueElements
 
+  FUNCTION IsReceptionQueueEmpty(queue) RESULT(empty)
+    TYPE(ReceptionQueue), INTENT(IN) :: queue
+    LOGICAL :: empty
+    empty = .NOT. ASSOCIATED(queue%front)
+  END FUNCTION IsReceptionQueueEmpty
 END MODULE ReceptionQueueListModule

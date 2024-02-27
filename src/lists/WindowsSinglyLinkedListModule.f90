@@ -3,7 +3,7 @@ MODULE WindowsSinglyLinkedListModule
   IMPLICIT NONE
 
   TYPE Node
-    type(WindowModule) :: windowData
+    type(Window) :: value
     TYPE(Node), POINTER :: next
   END TYPE Node
 
@@ -13,14 +13,14 @@ MODULE WindowsSinglyLinkedListModule
 
 CONTAINS
 
-  SUBROUTINE SinglyInitializeList(list)
+  SUBROUTINE WindowsSinglyInitializeList(list)
     TYPE(WindowsSinglyLinkedList), INTENT(OUT) :: list
     list%head => NULL()
-  END SUBROUTINE SinglyInitializeList
+  END SUBROUTINE WindowsSinglyInitializeList
 
-  SUBROUTINE SinglyInsertAtEnd(list, newValue)
+  SUBROUTINE WindowsSinglyInsertAtEnd(list, newValue)
     TYPE(WindowsSinglyLinkedList), INTENT(INOUT) :: list
-    type(WindowModule), INTENT(IN) :: newValue
+    type(Window), INTENT(INOUT) :: newValue
     TYPE(Node), POINTER :: newNode, current
 
     call initializeWindow(newValue)
@@ -38,21 +38,21 @@ CONTAINS
     ELSE
       list%head => newNode
     END IF
-  END SUBROUTINE SinglyInsertAtEnd
+  END SUBROUTINE WindowsSinglyInsertAtEnd
 
-  SUBROUTINE SinglyPrintList(list)
-    TYPE(WindowsSinglyLinkedList), INTENT(IN) :: list
-    TYPE(Node), POINTER :: current
+  !SUBROUTINE SinglyPrintList(list)
+  !  TYPE(WindowsSinglyLinkedList), INTENT(IN) :: list
+  !  TYPE(Node), POINTER :: current
 
-    IF (ASSOCIATED(list%head)) THEN
-      current => list%head
-      DO WHILE (ASSOCIATED(current))
-        PRINT *, "Value:", current%value
-        current => current%next
-      END DO
-    ELSE
-      PRINT *, "The list is empty"
-    END IF
-  END SUBROUTINE SinglyPrintList
+  ! IF (ASSOCIATED(list%head)) THEN
+  !    current => list%head
+  !    DO WHILE (ASSOCIATED(current))
+  !      PRINT *, "Value:", current%value
+  !      current => current%next
+  !    END DO
+  !  ELSE
+  !    PRINT *, "The list is empty"
+  !  END IF
+  !END SUBROUTINE SinglyPrintList
 
 END MODULE WindowsSinglyLinkedListModule
