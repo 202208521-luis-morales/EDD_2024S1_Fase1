@@ -19,7 +19,7 @@ program MainProgram
   TYPE(ReceptionQueue) :: L_ReceptionQueue
   type(WindowsSinglyLinkedList) :: L_Windows
   type(DoublyCircularLinkedList) :: L_ClientsOnHold
-  type(Window) :: window1, window2
+  type(Window) :: window1, window2, toSaveWindow, retrievedClient
   type(ClientOnHold) :: clientOnHoldToSave, clientOnHoldFromList
   type(PrinterQueueList) :: L_BigPrinter, L_SmallPrinter
   type(ClientsServedSinglyLinkedList) :: L_ClientsServed
@@ -28,6 +28,7 @@ program MainProgram
   integer :: string_to_integer_2, dcll_length, j
 
   step = 1
+  num_windows = -1
   call inicializar_datos(lista_clientes)
   call WindowsSinglyInitializeList(L_Windows)
   call InitializeDoublyCircularLinkedList(L_ClientsOnHold)
@@ -130,191 +131,194 @@ CONTAINS
     PRINT *, "HAS ELEGIDO: '2. Ejecutar paso'"
     PRINT *
 
-    WRITE(integer_to_string, '(I0)') step
+    IF(num_windows == -1) THEN
+      PRINT *, "ERROR: Aun no has asignado el numero de ventanillas"
+    ELSE
+      WRITE(integer_to_string, '(I0)') step
 
-    PRINT *, "(", TRIM(integer_to_string), ")"
-    PRINT *, "Acciones que se realizaron en el paso ", TRIM(integer_to_string), ":"
+      PRINT *, "(", TRIM(integer_to_string), ")"
+      PRINT *, "Acciones que se realizaron en el paso ", TRIM(integer_to_string), ":"
 
-    ! Método: Por cada cliente en espera, caminar su "paso" y si ya pasaron los pasos para cada impresión, pasarlos al cliente y finalmente darlo de "alta"
-    i = 1
-    DO WHILE (DoublyCircularLinkedListNodeExistsAtPosition(L_ClientsOnHold, i))
-      clientOnHoldFromList = DoublyCircularLinkedListGetAtPosition(L_ClientsOnHold, i)
-      retrievedClient = clientOnHoldFromList%client
-
-      IF(clientOnHoldFromList%img_g_done .AND. clientOnHoldFromList%img_p_done) THEN
-        CALL DoublyCircularLinkedListDeleteAtPosition(L_ClientsOnHold, i)
-        CALL ClientsServedSinglyInsertAtEnd(L_ClientsServed, retrievedClient)
-        PRINT *, " - El cliente con ID: ",retrievedClient%id, " termina todos sus procesos y se da por atendido." 
-      ELSE 
-        IF(clientOnHoldFromList%waitStep == 1) then
-          READ(retrievedClient%img_p, *) string_to_integer
-          DO j=1, string_to_integer
-            garbageValue = DequeuePrinter(L_SmallPrinter)
-            valueToSave = "IMG P"
-            CALL ImagesSinglyInsertAtEnd(clientOnHoldFromList%imagesLinkedList, valueToSave)
-          END DO
-
-          CALL DoublyCircularLinkedListIncrementWaitStepAtPosition(L_ClientsOnHold, i)
-          IF(string_to_integer > 0) THEN
-            CALL DoublyCircularLinkedListSetPTAtPosition(L_ClientsOnHold, i)
-            PRINT *, " - Todas las imagenes pequenas, se agregaron al cliente en espera con ID: ", retrievedClient%id
-          END IF
-        ELSE IF(clientOnHoldFromList%waitStep == 2) THEN
-          READ(retrievedClient%img_g, *) string_to_integer
-          DO j=1, string_to_integer
-            garbageValue = DequeuePrinter(L_BigPrinter)
-            valueToSave = "IMG G"
-            CALL ImagesSinglyInsertAtEnd(clientOnHoldFromList%imagesLinkedList, valueToSave)
-          END DO
-          IF(string_to_integer > 0) THEN
-            CALL DoublyCircularLinkedListSetGTAtPosition(L_ClientsOnHold, i)
-            PRINT *, " - Todas las imagenes grandes, se agregaron al cliente en espera con ID: ", retrievedClient%id
-          END IF
-        ELSE
-          CALL DoublyCircularLinkedListIncrementWaitStepAtPosition(L_ClientsOnHold, i)
-          IF(.NOT. clientOnHoldFromList%img_g_done) THEN
-            PRINT *, " - Procesando todas las imagenes grandes del cliente con ID: ",retrievedClient%id
-          END IF
-
-          IF(.NOT. clientOnHoldFromList%img_p_done) THEN
-            PRINT *, " - Procesando todas las imagenes pequenas del cliente con ID: ",retrievedClient%id
-          END IF
-        END IF
-      END IF
-      
-      i = i + 1
-    END DO
-
-    ! Verificar las imágenes de los clientes en la ventanilla 1
-    IF(.NOT. window1%windowClient%id == "null") then
+      ! Método: Por cada cliente en espera, caminar su "paso" y si ya pasaron los pasos para cada impresión, pasarlos al cliente y finalmente darlo de "alta"
       i = 1
-      window1_img_p = 0
-      window1_img_g = 0
+      DO WHILE (DoublyCircularLinkedListNodeExistsAtPosition(L_ClientsOnHold, i))
+        clientOnHoldFromList = DoublyCircularLinkedListGetAtPosition(L_ClientsOnHold, i)
+        retrievedClient = clientOnHoldFromList%client
 
-      ! Método: obtener cuántos imagenes de cada tipo hay para la ventanilla 1
-      DO WHILE(GetStackValueAtPosition(window1%imagesStack, i) /= "null")
-        valueOfStack = GetStackValueAtPosition(window1%imagesStack, i)
+        IF(clientOnHoldFromList%img_g_done .AND. clientOnHoldFromList%img_p_done) THEN
+          CALL DoublyCircularLinkedListDeleteAtPosition(L_ClientsOnHold, i)
+          CALL ClientsServedSinglyInsertAtEnd(L_ClientsServed, retrievedClient)
+          PRINT *, " - El cliente con ID: ",retrievedClient%id, " termina todos sus procesos y se da por atendido." 
+        ELSE 
+          IF(clientOnHoldFromList%waitStep == 1) then
+            READ(retrievedClient%img_p, *) string_to_integer
+            DO j=1, string_to_integer
+              garbageValue = DequeuePrinter(L_SmallPrinter)
+              valueToSave = "IMG P"
+              CALL ImagesSinglyInsertAtEnd(clientOnHoldFromList%imagesLinkedList, valueToSave)
+            END DO
 
-        IF(valueOfStack == "IMG G") THEN
-          window1_img_g = window1_img_g + 1
-        ELSE IF(valueOfStack == "IMG P") THEN
-          window1_img_p = window1_img_p + 1
+            CALL DoublyCircularLinkedListIncrementWaitStepAtPosition(L_ClientsOnHold, i)
+            IF(string_to_integer > 0) THEN
+              CALL DoublyCircularLinkedListSetPTAtPosition(L_ClientsOnHold, i)
+              PRINT *, " - Todas las imagenes pequenas, se agregaron al cliente en espera con ID: ", retrievedClient%id
+            END IF
+          ELSE IF(clientOnHoldFromList%waitStep == 2) THEN
+            READ(retrievedClient%img_g, *) string_to_integer
+            DO j=1, string_to_integer
+              garbageValue = DequeuePrinter(L_BigPrinter)
+              valueToSave = "IMG G"
+              CALL ImagesSinglyInsertAtEnd(clientOnHoldFromList%imagesLinkedList, valueToSave)
+            END DO
+            IF(string_to_integer > 0) THEN
+              CALL DoublyCircularLinkedListSetGTAtPosition(L_ClientsOnHold, i)
+              PRINT *, " - Todas las imagenes grandes, se agregaron al cliente en espera con ID: ", retrievedClient%id
+            END IF
+          ELSE
+            CALL DoublyCircularLinkedListIncrementWaitStepAtPosition(L_ClientsOnHold, i)
+            IF(.NOT. clientOnHoldFromList%img_g_done) THEN
+              PRINT *, " - Procesando todas las imagenes grandes del cliente con ID: ",retrievedClient%id
+            END IF
+
+            IF(.NOT. clientOnHoldFromList%img_p_done) THEN
+              PRINT *, " - Procesando todas las imagenes pequenas del cliente con ID: ",retrievedClient%id
+            END IF
+          END IF
         END IF
+        
         i = i + 1
       END DO
 
-      ! Método: si quedan imágenes por ingresar las ingresa el cliente a la ventanilla 1
-      READ(window1%windowClient%img_p, *) string_to_integer
-      READ(window1%windowClient%img_g, *) string_to_integer_2
+      ! Verificar las imágenes de los clientes en la ventanilla 1
+      IF(.NOT. window1%windowClient%id == "null") then
+        i = 1
+        window1_img_p = 0
+        window1_img_g = 0
 
-      IF((string_to_integer - window1_img_p) > 0) THEN
-        valueToSave = "IMG P"
-        CALL StackPush(window1%imagesStack, valueToSave)
-        PRINT *, " - La ventanilla 1 recibe una imagen IMG_P del cliente con id: ", window1%windowClient%id
-      ELSE IF((string_to_integer_2 - window1_img_g) > 0) THEN
-        valueToSave = "IMG G"
-        CALL StackPush(window1%imagesStack, valueToSave)
-        PRINT *, " - La ventanilla 1 recibe una imagen IMG_G del cliente con id: ", window1%windowClient%id
-      ELSE IF(((string_to_integer - window1_img_p) == 0) .AND. ((string_to_integer_2 - window1_img_g) == 0)) THEN
-        newClient = window1%windowClient
+        ! Método: obtener cuántos imagenes de cada tipo hay para la ventanilla 1
+        DO WHILE(GetStackValueAtPosition(window1%imagesStack, i) /= "null")
+          valueOfStack = GetStackValueAtPosition(window1%imagesStack, i)
 
-        ! Método: Enviar las imágenes del cliente a las impresoras correspondientes
-        READ(newClient%img_g, *) string_to_integer
-        valueToSave = "IMG G"
-
-        DO i=1, string_to_integer
-          CALL EnqueuePrinter(L_BigPrinter, valueToSave)
+          IF(valueOfStack == "IMG G") THEN
+            window1_img_g = window1_img_g + 1
+          ELSE IF(valueOfStack == "IMG P") THEN
+            window1_img_p = window1_img_p + 1
+          END IF
+          i = i + 1
         END DO
 
-        READ(newClient%img_p, *) string_to_integer
-        valueToSave = "IMG P"
+        ! Método: si quedan imágenes por ingresar las ingresa el cliente a la ventanilla 1
+        READ(window1%windowClient%img_p, *) string_to_integer
+        READ(window1%windowClient%img_g, *) string_to_integer_2
 
-        DO i=1, string_to_integer
-          CALL EnqueuePrinter(L_SmallPrinter, valueToSave)
-        END DO
+        IF((string_to_integer - window1_img_p) > 0) THEN
+          valueToSave = "IMG P"
+          CALL StackPush(window1%imagesStack, valueToSave)
+          PRINT *, " - La ventanilla 1 recibe una imagen IMG_P del cliente con id: ", window1%windowClient%id
+        ELSE IF((string_to_integer_2 - window1_img_g) > 0) THEN
+          valueToSave = "IMG G"
+          CALL StackPush(window1%imagesStack, valueToSave)
+          PRINT *, " - La ventanilla 1 recibe una imagen IMG_G del cliente con id: ", window1%windowClient%id
+        ELSE IF(((string_to_integer - window1_img_p) == 0) .AND. ((string_to_integer_2 - window1_img_g) == 0)) THEN
+          newClient = window1%windowClient
 
-        PRINT *, " - La ventanilla 1 envia las imagenes del cliente ", window1%windowClient%id &
-           // " a sus respectivas colas de impresion."
+          ! Método: Enviar las imágenes del cliente a las impresoras correspondientes
+          READ(newClient%img_g, *) string_to_integer
+          valueToSave = "IMG G"
 
-        CALL initializeClientOnHold(clientOnHoldToSave, newClient)
-        CALL DoublyCircularLinkedListInsertAtEnd(L_ClientsOnHold, clientOnHoldToSave)
-        PRINT *, " - El cliente con el id: ",window1%windowClient%id," es atendido e ingresa a la lista de espera."
-        CALL initializeWindow(window1)
-      END IF
-    END IF
+          DO i=1, string_to_integer
+            CALL EnqueuePrinter(L_BigPrinter, valueToSave)
+          END DO
 
-    ! Verificar las imágenes de los clientes en la ventanilla 2
-    IF(.NOT. window2%windowClient%id == "null") then
-      i = 1
-      window2_img_p = 0
-      window2_img_g = 0
+          READ(newClient%img_p, *) string_to_integer
+          valueToSave = "IMG P"
 
-      ! Método: obtener cuántos imagenes de cada tipo hay para la ventanilla 2
-      DO WHILE(GetStackValueAtPosition(window2%imagesStack, i) /= "null")
-        valueOfStack = GetStackValueAtPosition(window2%imagesStack, i)
+          DO i=1, string_to_integer
+            CALL EnqueuePrinter(L_SmallPrinter, valueToSave)
+          END DO
 
-        IF(valueOfStack == "IMG G") THEN
-          window2_img_g = window2_img_g + 1
-        ELSE IF(valueOfStack == "IMG P") THEN
-          window2_img_p = window2_img_p + 1
+          PRINT *, " - La ventanilla 1 envia las imagenes del cliente ", window1%windowClient%id &
+            // " a sus respectivas colas de impresion."
+
+          CALL initializeClientOnHold(clientOnHoldToSave, newClient)
+          CALL DoublyCircularLinkedListInsertAtEnd(L_ClientsOnHold, clientOnHoldToSave)
+          PRINT *, " - El cliente con el id: ",window1%windowClient%id," es atendido e ingresa a la lista de espera."
+          CALL initializeWindow(window1)
         END IF
-        i = i + 1
-      END DO
+      END IF
 
-      READ(window2%windowClient%img_p, *) string_to_integer
-      READ(window2%windowClient%img_g, *) string_to_integer_2
+      ! Verificar las imágenes de los clientes en la ventanilla 2
+      IF(.NOT. window2%windowClient%id == "null") then
+        i = 1
+        window2_img_p = 0
+        window2_img_g = 0
 
-      ! Método: si quedan imágenes por ingresar las ingresa el cliente a la ventanilla 2
-      IF((string_to_integer - window2_img_p) > 0) THEN
-        valueToSave = "IMG P"
-        CALL StackPush(window2%imagesStack, valueToSave)
-        PRINT *, " - La ventanilla 2 recibe una imagen IMG_P del cliente con id: ", window2%windowClient%id
-      ELSE IF((string_to_integer_2 - window2_img_g) > 0) THEN
-        valueToSave = "IMG G"
-        CALL StackPush(window2%imagesStack, valueToSave)
-        PRINT *, " - La ventanilla 2 recibe una imagen IMG_G del cliente con id: ", window2%windowClient%id
-      ELSE IF(((string_to_integer - window2_img_p) == 0) .AND. ((string_to_integer_2 - window2_img_g) == 0)) THEN
-        newClient = window2%windowClient
+        ! Método: obtener cuántos imagenes de cada tipo hay para la ventanilla 2
+        DO WHILE(GetStackValueAtPosition(window2%imagesStack, i) /= "null")
+          valueOfStack = GetStackValueAtPosition(window2%imagesStack, i)
 
-        ! Método: Enviar las imágenes del cliente a las impresoras correspondientes
-        READ(newClient%img_g, *) string_to_integer
-        valueToSave = "IMG G"
-
-        DO i=1, string_to_integer
-          CALL EnqueuePrinter(L_BigPrinter, valueToSave)
+          IF(valueOfStack == "IMG G") THEN
+            window2_img_g = window2_img_g + 1
+          ELSE IF(valueOfStack == "IMG P") THEN
+            window2_img_p = window2_img_p + 1
+          END IF
+          i = i + 1
         END DO
 
-        READ(newClient%img_p, *) string_to_integer
-        valueToSave = "IMG P"
+        READ(window2%windowClient%img_p, *) string_to_integer
+        READ(window2%windowClient%img_g, *) string_to_integer_2
 
-        DO i=1, string_to_integer
-          CALL EnqueuePrinter(L_SmallPrinter, valueToSave)
+        ! Método: si quedan imágenes por ingresar las ingresa el cliente a la ventanilla 2
+        IF((string_to_integer - window2_img_p) > 0) THEN
+          valueToSave = "IMG P"
+          CALL StackPush(window2%imagesStack, valueToSave)
+          PRINT *, " - La ventanilla 2 recibe una imagen IMG_P del cliente con id: ", window2%windowClient%id
+        ELSE IF((string_to_integer_2 - window2_img_g) > 0) THEN
+          valueToSave = "IMG G"
+          CALL StackPush(window2%imagesStack, valueToSave)
+          PRINT *, " - La ventanilla 2 recibe una imagen IMG_G del cliente con id: ", window2%windowClient%id
+        ELSE IF(((string_to_integer - window2_img_p) == 0) .AND. ((string_to_integer_2 - window2_img_g) == 0)) THEN
+          newClient = window2%windowClient
+
+          ! Método: Enviar las imágenes del cliente a las impresoras correspondientes
+          READ(newClient%img_g, *) string_to_integer
+          valueToSave = "IMG G"
+
+          DO i=1, string_to_integer
+            CALL EnqueuePrinter(L_BigPrinter, valueToSave)
+          END DO
+
+          READ(newClient%img_p, *) string_to_integer
+          valueToSave = "IMG P"
+
+          DO i=1, string_to_integer
+            CALL EnqueuePrinter(L_SmallPrinter, valueToSave)
+          END DO
+
+          PRINT *, " - La ventanilla 2 envia las imagenes del cliente ", window1%windowClient%id &
+            // " a sus respectivas colas de impresion."
+
+          CALL initializeClientOnHold(clientOnHoldToSave, newClient)
+          CALL DoublyCircularLinkedListInsertAtEnd(L_ClientsOnHold, clientOnHoldToSave)
+          PRINT *, " - El cliente con el id: ",window2%windowClient%id," es atendido e ingresa a la lista de espera."
+          CALL initializeWindow(window2)
+        END IF
+      END IF
+
+      ! Checar si hay clientes en la cola, si hay asignarlos a una ventanilla disponible
+      IF(.NOT. IsReceptionQueueEmpty(L_ReceptionQueue)) THEN
+        DO i=1, num_windows
+        
+          IF(window2%windowClient%id == "null") THEN
+            dequeuedReceptionClient = DequeueReception(L_ReceptionQueue)
+            CALL SetClient(window2%windowClient, dequeuedReceptionClient)
+            PRINT *, " - El cliente con id: ", window2%windowClient%id, " ingreso a la ventanilla 2"
+          END IF
         END DO
-
-        PRINT *, " - La ventanilla 2 envia las imagenes del cliente ", window1%windowClient%id &
-           // " a sus respectivas colas de impresion."
-
-        CALL initializeClientOnHold(clientOnHoldToSave, newClient)
-        CALL DoublyCircularLinkedListInsertAtEnd(L_ClientsOnHold, clientOnHoldToSave)
-        PRINT *, " - El cliente con el id: ",window2%windowClient%id," es atendido e ingresa a la lista de espera."
-        CALL initializeWindow(window2)
       END IF
-    END IF
 
-    ! Checar si hay clientes en la cola, si hay asignarlos a una ventanilla disponible
-    IF(.NOT. IsReceptionQueueEmpty(L_ReceptionQueue)) THEN
-      IF(window1%windowClient%id == "null") THEN
-        dequeuedReceptionClient = DequeueReception(L_ReceptionQueue)
-        CALL SetClient(window1%windowClient, dequeuedReceptionClient)
-        PRINT *, " - El cliente con id: ", window1%windowClient%id, " ingreso a la ventanilla 1"
-      ELSE IF(window2%windowClient%id == "null") THEN
-        dequeuedReceptionClient = DequeueReception(L_ReceptionQueue)
-        CALL SetClient(window2%windowClient, dequeuedReceptionClient)
-        PRINT *, " - El cliente con id: ", window2%windowClient%id, " ingreso a la ventanilla 2"
-      END IF
+      step = step + 1
     END IF
-
-    step = step + 1
   END SUBROUTINE Option2
 
   SUBROUTINE Option1_1()
@@ -351,6 +355,15 @@ CONTAINS
     PRINT *
     PRINT *, "Escribe la cantidad de ventanillas que deseas establecer:"
     READ(*, *) num_windows
-    write(*, '(A, I0)') "Has establecido como numero de ventanillas: ", num_windows
+
+    IF(num_windows < 1) THEN
+      PRINT *, "ERROR: El numero de ventanillas debe de ser mayor a 0"
+    ELSE
+      write(*, '(A, I0)') "Has establecido como numero de ventanillas: ", num_windows
+      DO i=1, num_windows
+        CALL initializeWindow(toSaveWindow)
+        CALL WindowsSinglyInsertAtEnd(L_Windows, toSaveWindow)
+      END DO
+    END IF
   END SUBROUTINE Option1_2
 end program MainProgram
