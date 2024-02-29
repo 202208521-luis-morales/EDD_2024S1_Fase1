@@ -19,7 +19,7 @@ program MainProgram
   TYPE(ReceptionQueue) :: L_ReceptionQueue
   type(WindowsSinglyLinkedList) :: L_Windows
   type(DoublyCircularLinkedList) :: L_ClientsOnHold
-  type(Window) :: window1, window2, toSaveWindow, retrievedClient
+  type(Window) :: window1, window2, toSaveWindow, retrievedWindow
   type(ClientOnHold) :: clientOnHoldToSave, clientOnHoldFromList
   type(PrinterQueueList) :: L_BigPrinter, L_SmallPrinter
   type(ClientsServedSinglyLinkedList) :: L_ClientsServed
