@@ -1,5 +1,5 @@
 program MainProgram
-  !use json_module
+  use json_module
   use ClientModule
   use ClientOnHoldModule
   USE ReceptionQueueListModule
@@ -10,15 +10,21 @@ program MainProgram
   use PrinterQueueListModule
   use ClientsServedSinglyLinkedListModule
   use ImagesSinglyLinkedListModule
+  use AllClientsSinglyLinkedListModule
 
   implicit none
 
   character(len=100) :: file_name = 'grafo.dot'
-  integer :: file_unit, k, garbageInteger
-  character(:), allocatable, dimension(:) :: lines_file
+  character(len=100) :: file_name_1 = 'reporte1.dot'
+  character(len=100) :: file_name_2 = 'reporte2.dot'
+  character(len=100) :: file_name_3 = 'reporte3.dot'
+  character(len=100) :: file_name_4 = 'reporte4.dot'
+
+  integer :: file_unit, file_unit_1, file_unit_2, file_unit_3, file_unit_4, k, garbageInteger
   character(len=20) :: integer_to_string, integer_to_string_2, integer_to_string_3
   CHARACTER(:), ALLOCATABLE :: valueOfStack, valueToSave, garbageValue
-  type(Cliente), dimension(:), allocatable :: lista_clientes, clientsOnQueue
+  CHARACTER(:), ALLOCATABLE :: extracted_id, extracted_name, extracted_img_g, extracted_img_p
+  type(Cliente), dimension(:), allocatable :: clientsOnQueue
   type(Cliente) :: newClient, dequeuedReceptionClient, retrievedClient
   TYPE(ReceptionQueue) :: L_ReceptionQueue
   type(WindowsSinglyLinkedList) :: L_Windows
@@ -28,41 +34,28 @@ program MainProgram
   type(ClientOnHold) :: clientOnHoldToSave, clientOnHoldFromList
   type(PrinterQueueList) :: L_BigPrinter, L_SmallPrinter
   type(ClientsServedSinglyLinkedList) :: L_ClientsServed
+  type(AllClientsSinglyLinkedList) :: L_AllClients
+  type(json_file) :: json
+  logical :: are_clients_setted, are_clients_attended, found
 
   integer :: opcion, subopcion, num_windows, i, step, string_to_integer, window_img_p, window_img_g
   integer :: string_to_integer_2, dcll_length, j
 
   step = 1
   num_windows = -1
-  call inicializar_datos(lista_clientes)
+  are_clients_setted = .FALSE.
+  are_clients_attended = .FALSE.
   call WindowsSinglyInitializeList(L_Windows)
   call InitializeDoublyCircularLinkedList(L_ClientsOnHold)
   call InitializePrinterQueue(L_BigPrinter)
   call InitializePrinterQueue(L_SmallPrinter)
+  call AllClientsSinglyInitializeList(L_AllClients)
   call ClientsServedSinglyInitializeList(L_ClientsServed)
 
   ! Crear Cola Recepción
   CALL InitializeReceptionQueue(L_ReceptionQueue)
 
-  DO i = 1, 2
-    newClient = lista_clientes(i)
-    CALL EnqueueReception(L_ReceptionQueue, newClient)
-  END DO
-
-  CALL GetReceptionQueueElements(L_ReceptionQueue, clientsOnQueue)
-
-  !do i = 1, size(lista_clientes)
-  !  write(*,*) 'Cliente ', i
-  !  write(*,*) 'ID: ', lista_clientes(i)%id
-  !  write(*,*) 'Nombre: ', lista_clientes(i)%nombre
-  !  write(*,*) 'Imagen grande: ', lista_clientes(i)%img_g
-  !  write(*,*) 'Imagen pequeña: ', lista_clientes(i)%img_p
-  !  write(*,*)
-  !end do
-
-  !deallocate(lista_clientes)
-
-    DO
+  DO
     CALL MostrarMenu()
 
     READ(*, *) opcion
@@ -90,9 +83,16 @@ program MainProgram
     CASE (3)
       call Option3()
     CASE (4)
-      PRINT *, "Elegiste la Opción 4"
+      CALL Option4()
     CASE (5)
-      PRINT *, "Elegiste la Opción 5"
+      PRINT *
+      PRINT *
+      PRINT *, " - --- DATOS ESTUDIANTE ---"
+      PRINT *, " - Nombre: Luis Rodrigo Morales Florian"
+      PRINT *, " - Carnet: 202208521"
+      PRINT *, " - DPI: 3683798410101"
+      PRINT *
+      PRINT *
     CASE (6)
       PRINT *, "Has salido del programa."
       EXIT
@@ -136,6 +136,8 @@ CONTAINS
 
     IF(num_windows == -1) THEN
       PRINT *, "ERROR: Aun no has asignado el numero de ventanillas"
+    ELSE IF(.NOT. are_clients_setted) THEN
+      PRINT *, "ERROR: Aun no has asignado a los clientes"
     ELSE
       WRITE(integer_to_string, '(I0)') step
 
@@ -149,9 +151,7 @@ CONTAINS
         retrievedClient = clientOnHoldFromList%client
 
         IF(clientOnHoldFromList%img_g_done .AND. clientOnHoldFromList%img_p_done) THEN
-          PRINT *, "BEFORE" , DoublyCircularLinkedListLength(L_ClientsOnHold)
           CALL DoublyCircularLinkedListDeleteAtPosition(L_ClientsOnHold, i)
-          PRINT *, "AFTER" , DoublyCircularLinkedListLength(L_ClientsOnHold)
           CALL ClientsServedSinglyInsertAtEnd(L_ClientsServed, retrievedClient)
           PRINT *, " - El cliente con ID: ",retrievedClient%id, " termina todos sus procesos y se da por atendido."
         ELSE 
@@ -275,6 +275,10 @@ CONTAINS
       END IF
 
       step = step + 1
+    END IF
+
+    IF(ClientsServedSinglyListLength(L_ClientsServed) == AllClientsSinglyLinkedListLength(L_AllClients)) THEN
+      are_clients_attended = .TRUE.
     END IF
   END SUBROUTINE Option2
 
@@ -471,24 +475,27 @@ CONTAINS
       write(file_unit, '(a)') 'bgcolor="#f7d794"'
       write(file_unit, '(a)') 'node[shape=square]'
 
-      CALL GetReceptionQueueElements(L_ReceptionQueue, clientsOnQueue)
+      IF(.NOT. IsReceptionQueueEmpty(L_ReceptionQueue)) THEN
+        CALL GetReceptionQueueElements(L_ReceptionQueue, clientsOnQueue)
 
-      DO i = 1, SIZE(clientsOnQueue)
-        WRITE(integer_to_string, '(I0)') i
+        DO i = 1, SIZE(clientsOnQueue)
+          WRITE(integer_to_string, '(I0)') i
 
-        write(file_unit, '(a)') 'Nodo1_'//integer_to_string// &
-          ' [label="Cliente '//clientsOnQueue(i)%id// &
-          '\nIMG-G: '//clientsOnQueue(i)%img_g// &
-          '\nIMG-P: '//clientsOnQueue(i)%img_p// &
-          '"];'
+          write(file_unit, '(a)') 'Nodo1_'//integer_to_string// &
+            ' [label="Cliente '//clientsOnQueue(i)%id// &
+            '\nIMG-G: '//clientsOnQueue(i)%img_g// &
+            '\nIMG-P: '//clientsOnQueue(i)%img_p// &
+            '"];'
 
-        WRITE(integer_to_string_2, '(I0)') (i-1)
+          WRITE(integer_to_string_2, '(I0)') (i-1)
 
-        IF (i > 1) THEN
-          write(file_unit, '(a)') 'Nodo1_'//integer_to_string_2//' -> Nodo1_'//integer_to_string//' [dir=none]'
-        END IF
-      END DO
-    write(file_unit, '(a)') '}'
+          IF (i > 1) THEN
+            write(file_unit, '(a)') 'Nodo1_'//integer_to_string_2//' -> Nodo1_'//integer_to_string//' [dir=none]'
+          END IF
+        END DO
+      END IF
+
+      write(file_unit, '(a)') '}'
     write(file_unit, '(a)') '}'
 
     close(unit=file_unit)
@@ -496,31 +503,193 @@ CONTAINS
     print *, 'Archivo DOT creado con éxito:', trim(file_name)
   END SUBROUTINE Option3
 
+  SUBROUTINE Option4()
+    PRINT *
+    PRINT *
+    PRINT *, "HAS ELEGIDO: '4. Reportes'"
+    PRINT *
+
+    ! Reporte 1: Top 5 de clientes con mayor cantidad de imágenes grandes
+    open(unit=file_unit_1, file=file_name_1, status='replace', action='write', iostat=k)
+
+    if (k /= 0) then
+        print *, 'Error al abrir el archivo'
+        stop
+    end if
+
+    write(file_unit_1, '(a)') 'digraph G {'
+      write(file_unit_1, '(a)') 'node [shape=plaintext];'
+      
+      write(file_unit_1, '(a)') 'title [label="Top 5 de clientes con mayor cantidad de imágenes grandes" shape=none fontsize=16];'
+
+      IF(AllClientsSinglyLinkedListLength(L_AllClients) > 0) THEN
+        CALL AllClientsSortClientsByImgG(L_AllClients)
+
+        write(file_unit_1, '(a)') 'table [label=<'
+        write(file_unit_1, '(a)') '<table border="0" cellborder="1" cellspacing="0">'
+          write(file_unit_1, '(a)') '<tr><td bgcolor="lightgray">' &
+            //'<b>#</b></td><td bgcolor="lightgray">' &
+            //'<b>ID</b></td><td bgcolor="lightgray">' &
+            //'<b>Nombre</b></td><td bgcolor="lightgray">'&
+            //'<b>IMG G</b></td><td bgcolor="lightgray">'&
+            //'<b>IMG P</b></td></tr>'
+
+        DO i=1, AllClientsSinglyLinkedListLength(L_AllClients)
+          WRITE(integer_to_string, '(I0)') i
+          retrievedClient = AllClientsSinglyLinkedListGetAtPosition(L_AllClients, i)
+
+          write(file_unit_1, '(a)') '<tr>' & 
+            //'<td>'//trim(integer_to_string)//'</td>' &
+            //'<td>'//retrievedClient%id//'</td>' &
+            //'<td>'//retrievedClient%nombre//'</td>'&
+            //'<td>'//retrievedClient%img_g//'</td>' &
+            //'<td>'//retrievedClient%img_p//'</td>' & 
+            //'</tr>'
+
+          IF(i == 5) THEN
+            EXIT
+          END IF
+        END DO
+
+        write(file_unit_1, '(a)') '</table>'
+        write(file_unit_1, '(a)') '>];'
+      END IF
+
+      write(file_unit_1, '(a)') 'title -> table [style=invis];'
+    write(file_unit_1, '(a)') '}'
+
+    close(unit=file_unit_1)
+
+    ! Reporte 2: Top 5 de clientes con mayor cantidad de imágenes pequenas
+    open(unit=file_unit_2, file=file_name_2, status='replace', action='write', iostat=k)
+
+    if (k /= 0) then
+        print *, 'Error al abrir el archivo'
+        stop
+    end if
+
+    write(file_unit_2, '(a)') 'digraph G {'
+      write(file_unit_2, '(a)') 'node [shape=plaintext];'
+      
+      write(file_unit_2, '(a)') 'title [label="Top 5 de clientes con mayor cantidad de imágenes pequenas" shape=none fontsize=16];'
+
+      IF(AllClientsSinglyLinkedListLength(L_AllClients) > 0) THEN
+        CALL AllClientsSortClientsByImgP(L_AllClients)
+
+        write(file_unit_2, '(a)') 'table [label=<'
+        write(file_unit_2, '(a)') '<table border="0" cellborder="1" cellspacing="0">'
+          write(file_unit_2, '(a)') '<tr><td bgcolor="lightgray">' &
+            //'<b>#</b></td><td bgcolor="lightgray">' &
+            //'<b>ID</b></td><td bgcolor="lightgray">' &
+            //'<b>Nombre</b></td><td bgcolor="lightgray">'&
+            //'<b>IMG G</b></td><td bgcolor="lightgray">'&
+            //'<b>IMG P</b></td></tr>'
+
+        DO i=1, AllClientsSinglyLinkedListLength(L_AllClients)
+          WRITE(integer_to_string, '(I0)') i
+          retrievedClient = AllClientsSinglyLinkedListGetAtPosition(L_AllClients, i)
+
+          write(file_unit_2, '(a)') '<tr>' & 
+            //'<td>'//trim(integer_to_string)//'</td>' &
+            //'<td>'//retrievedClient%id//'</td>' &
+            //'<td>'//retrievedClient%nombre//'</td>'&
+            //'<td>'//retrievedClient%img_g//'</td>' &
+            //'<td>'//retrievedClient%img_p//'</td>' & 
+            //'</tr>'
+
+          IF(i == 5) THEN
+            EXIT
+          END IF
+        END DO
+
+        write(file_unit_2, '(a)') '</table>'
+        write(file_unit_2, '(a)') '>];'
+      END IF
+
+      write(file_unit_2, '(a)') 'title -> table [style=invis];'
+    write(file_unit_2, '(a)') '}'
+
+    close(unit=file_unit_2)
+
+    ! Reporte 3: Cliente que más pasos estuvo en el sistema
+    open(unit=file_unit_3, file=file_name_3, status='replace', action='write', iostat=k)
+
+    if (k /= 0) then
+        print *, 'Error al abrir el archivo'
+        stop
+    end if
+
+    write(file_unit_3, '(a)') 'digraph G {'
+      write(file_unit_3, '(a)') 'node [shape=plaintext];'
+      
+      write(file_unit_3, '(a)') 'title [label="Cliente que más pasos estuvo en el sistema" shape=none fontsize=16];'
+
+      IF((AllClientsSinglyLinkedListLength(L_AllClients) > 0) .AND. are_clients_attended) THEN
+        CALL AllClientsSortClientsByStepsNeeded(L_AllClients)
+
+        write(file_unit_3, '(a)') 'table [label=<'
+        write(file_unit_3, '(a)') '<table border="0" cellborder="1" cellspacing="0">'
+          write(file_unit_3, '(a)') '<tr><td bgcolor="lightgray">' &
+            //'<b>ID</b></td><td bgcolor="lightgray">' &
+            //'<b>Nombre</b></td><td bgcolor="lightgray">'&
+            //'<b>IMG G</b></td><td bgcolor="lightgray">'&
+            //'<b>IMG P</b></td></tr>'
+
+        retrievedClient = AllClientsSinglyLinkedListGetAtPosition(L_AllClients, 1)
+
+        write(file_unit_3, '(a)') '<tr>' & 
+          //'<td>'//retrievedClient%id//'</td>' &
+          //'<td>'//retrievedClient%nombre//'</td>'&
+          //'<td>'//retrievedClient%img_g//'</td>' &
+          //'<td>'//retrievedClient%img_p//'</td>' & 
+          //'</tr>'
+
+        write(file_unit_3, '(a)') '</table>'
+        write(file_unit_3, '(a)') '>];'
+      ELSE
+        write(file_unit_3, '(a)') 'message [label="Primero termina de procesar a todos tus clientes"]'
+      END IF
+
+      write(file_unit_3, '(a)') 'title -> table [style=invis];'
+    write(file_unit_3, '(a)') '}'
+
+    close(unit=file_unit_3)
+  END SUBROUTINE Option4
+
   SUBROUTINE Option1_1()
-    character(len=256) :: file_name
+    character(len=256) :: file_json_name
     PRINT *
     PRINT *
     PRINT *, "HAS ELEGIDO: '1.1. Carga masiva de clientes'"
     PRINT *
     PRINT *, "Escribe el nombre del archivo que quieres cargar:"
-    READ (*,*) file_name
+    READ (*,*) file_json_name
+    
+    call json%initialize(compact_reals=.true.)
 
-    !call json%load(filename = "files/"//file_name)
+    call json%load(filename = "files/"//file_json_name)
 
-    !if (json%failed()) then
-    !  WRITE(*,*) " ERROR: File: ","files/"//file_name," was not founded"
-    !else
-      !call json%initialize(compact_reals=.true.)
-      !call json%get('data(1).id', extracted_id, found)
-      !call json%get("data(1).nombre", extracted_name, found)
-      !call json%get("data(1).img_p", extracted_img_g, found)
-      !call json%get("data(1).img_g", extracted_img_p, found)
+    if (json%failed()) then
+      WRITE(*,*) " ERROR: File: ","files/"//file_json_name," was not founded"
+    else
+      DO i=1, 10
+        WRITE(integer_to_string, '(I0)') i
+        
+        call json%get('('//trim(integer_to_string)//').id', extracted_id, found)
+        call json%get('('//trim(integer_to_string)//').nombre', extracted_name, found)
+        call json%get('('//trim(integer_to_string)//').img_p', extracted_img_g, found)
+        call json%get('('//trim(integer_to_string)//').img_g', extracted_img_p, found)
 
-      !PRINT *, "ID: "//extracted_id
-      !PRINT *, "NOMBRE: "//extracted_name
-      !PRINT *, "IMG_P: "//extracted_img_p
-      !PRINT *, "IMG_G: "//extracted_img_g
-    !end if
+        newClient = Cliente(extracted_id, extracted_name, extracted_img_g, extracted_img_p, -1)
+        CALL EnqueueReception(L_ReceptionQueue, newClient)
+        CALL AllClientsSinglyInsertAtEnd(L_AllClients, newClient)
+      END DO
+
+      PRINT *, "Los clientes han sido cargados con exito"
+      are_clients_setted = .TRUE.
+
+      CALL GetReceptionQueueElements(L_ReceptionQueue, clientsOnQueue)
+    end if
   END SUBROUTINE Option1_1
 
   SUBROUTINE Option1_2()

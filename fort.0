@@ -1,0 +1,10 @@
+table [label=<
+<table border="0" cellborder="1" cellspacing="0">
+<tr><td bgcolor="lightgray"><b>ID</b></td><td bgcolor="lightgray"><b>Nombre</b></td><td bgcolor="lightgray"><b>IMG G</b></td><td bgcolor="lightgray"><b>IMG P</b></td></tr>
+<tr><td>4</td><td>Ana Rodriguez</td><td>2</td><td>4</td></tr>
+<tr><td>2</td><td>Maria Lopez</td><td>1</td><td>3</td></tr>
+<tr><td>10</td><td>Laura Diaz</td><td>1</td><td>3</td></tr>
+<tr><td>8</td><td>Sofia Ramirez</td><td>1</td><td>2</td></tr>
+<tr><td>3</td><td>Carlos Martinez</td><td>2</td><td>2</td></tr>
+</table>
+>];

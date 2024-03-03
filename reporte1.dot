@@ -1,0 +1,15 @@
+digraph G {
+node [shape=plaintext];
+title [label="Top 5 de clientes con mayor cantidad de imágenes grandes" shape=none fontsize=16];
+table [label=<
+<table border="0" cellborder="1" cellspacing="0">
+<tr><td bgcolor="lightgray"><b>#</b></td><td bgcolor="lightgray"><b>ID</b></td><td bgcolor="lightgray"><b>Nombre</b></td><td bgcolor="lightgray"><b>IMG G</b></td><td bgcolor="lightgray"><b>IMG P</b></td></tr>
+<tr><td>1</td><td>1</td><td>Juan Perez</td><td>3</td><td>1</td></tr>
+<tr><td>2</td><td>6</td><td>Elena Gonzalez</td><td>3</td><td>1</td></tr>
+<tr><td>3</td><td>7</td><td>Pedro Sanchez</td><td>3</td><td>1</td></tr>
+<tr><td>4</td><td>9</td><td>Diego Castro</td><td>3</td><td>1</td></tr>
+<tr><td>5</td><td>4</td><td>Ana Rodriguez</td><td>2</td><td>4</td></tr>
+</table>
+>];
+title -> table [style=invis];
+}

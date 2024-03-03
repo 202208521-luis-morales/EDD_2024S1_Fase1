@@ -1,0 +1,4 @@
+<tr><td bgcolor="lightgray"><b>ID</b></td><td bgcolor="lightgray"><b>Nombre</b></td><td bgcolor="lightgray"><b>IMG G</b></td><td bgcolor="lightgray"><b>IMG P</b></td></tr>
+<tr><td>1</td><td>Marco Aurelio</td><td>3</td><td>0</td></tr>
+<tr><td bgcolor="lightgray"><b>ID</b></td><td bgcolor="lightgray"><b>Nombre</b></td><td bgcolor="lightgray"><b>IMG G</b></td><td bgcolor="lightgray"><b>IMG P</b><td bgcolor="lightgray"><b>Pasos</b></td></tr>
+<tr><td>1</td><td>Marco Aurelio</td><td>3</td><td>0</td><td>45</td></tr>

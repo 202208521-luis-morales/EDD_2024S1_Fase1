@@ -1,0 +1,6 @@
+digraph G {
+node [shape=plaintext];
+title [label="Cliente que más pasos estuvo en el sistema" shape=none fontsize=16];
+message [label="Primero termina de procesar a todos tus clientes"]
+title -> table [style=invis];
+}
