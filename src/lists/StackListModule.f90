@@ -74,4 +74,18 @@ CONTAINS
     END IF
   END FUNCTION GetStackValueAtPosition
 
+  FUNCTION StackListLength(inputStackList) RESULT(length)
+    TYPE(StackList), INTENT(IN) :: inputStackList
+    INTEGER :: length
+    TYPE(StackNode), POINTER :: currentNode
+
+    currentNode => inputStackList%topNode
+    length = 0
+
+    DO WHILE (ASSOCIATED(currentNode))
+      length = length + 1
+      currentNode => currentNode%nextNode
+    END DO
+  END FUNCTION StackListLength
+
 END MODULE StackListModule

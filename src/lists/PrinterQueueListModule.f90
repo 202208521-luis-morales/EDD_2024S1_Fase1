@@ -55,4 +55,46 @@ CONTAINS
 
   END FUNCTION DequeuePrinter
 
+  FUNCTION GetPrinterQueueElementAtPosition(queue, position) RESULT(elementValue)
+    TYPE(PrinterQueueList), INTENT(IN) :: queue
+    INTEGER, INTENT(IN) :: position
+    CHARACTER(len=:), ALLOCATABLE :: elementValue
+    TYPE(Node), POINTER :: currentNode
+    INTEGER :: count
+
+    IF (.NOT. ASSOCIATED(queue%front) .OR. position <= 0) THEN
+      PRINT *, "Error: PrinterQueueList is empty or invalid position"
+      STOP
+    END IF
+
+    currentNode => queue%front
+    count = 1
+
+    DO WHILE (ASSOCIATED(currentNode) .AND. count < position)
+      currentNode => currentNode%next
+      count = count + 1
+    END DO
+
+    IF (count == position .AND. ASSOCIATED(currentNode)) THEN
+      elementValue = currentNode%value
+    ELSE
+      PRINT *, "Error: Element not found at position ", position
+      STOP
+    END IF
+  END FUNCTION GetPrinterQueueElementAtPosition
+
+  FUNCTION PrinterQueueListLength(queue) RESULT(length)
+    TYPE(PrinterQueueList), INTENT(IN) :: queue
+    INTEGER :: length
+    TYPE(Node), POINTER :: currentNode
+
+    currentNode => queue%front
+    length = 0
+
+    DO WHILE (ASSOCIATED(currentNode))
+      length = length + 1
+      currentNode => currentNode%next
+    END DO
+  END FUNCTION PrinterQueueListLength
+
 END MODULE PrinterQueueListModule

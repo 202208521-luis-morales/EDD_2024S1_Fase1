@@ -38,19 +38,46 @@ CONTAINS
     END IF
   END SUBROUTINE ClientsServedSinglyInsertAtEnd
 
-  !SUBROUTINE SinglyPrintList(list)
-  !  TYPE(ClientsServedSinglyLinkedList), INTENT(IN) :: list
-  !  TYPE(Node), POINTER :: current
+  FUNCTION ClientsServedSinglyListLength(list) RESULT(length)
+    TYPE(ClientsServedSinglyLinkedList), INTENT(IN) :: list
+    INTEGER :: length
+    TYPE(Node), POINTER :: currentNode
 
-  !  IF (ASSOCIATED(list%head)) THEN
-  !    current => list%head
-  !    DO WHILE (ASSOCIATED(current))
-  !      PRINT *, "Value:", current%value
-  !      current => current%next
-  !    END DO
-  !  ELSE
-  !    PRINT *, "The list is empty"
-  !  END IF
-  !END SUBROUTINE SinglyPrintList
+    currentNode => list%head
+    length = 0
+
+    DO WHILE (ASSOCIATED(currentNode))
+      length = length + 1
+      currentNode => currentNode%next
+    END DO
+  END FUNCTION ClientsServedSinglyListLength
+
+  FUNCTION GetClientsServedSinglyElementAtPosition(list, position) RESULT(elementValue)
+    TYPE(ClientsServedSinglyLinkedList), INTENT(IN) :: list
+    INTEGER, INTENT(IN) :: position
+    TYPE(Cliente) :: elementValue
+    TYPE(Node), POINTER :: currentNode
+    INTEGER :: count
+
+    IF (.NOT. ASSOCIATED(list%head) .OR. position <= 0) THEN
+      PRINT *, "Error: ClientsServedSinglyLinkedList is empty or invalid position"
+      STOP
+    END IF
+
+    currentNode => list%head
+    count = 1
+
+    DO WHILE (ASSOCIATED(currentNode) .AND. count < position)
+      currentNode => currentNode%next
+      count = count + 1
+    END DO
+
+    IF (count == position .AND. ASSOCIATED(currentNode)) THEN
+      elementValue = currentNode%value
+    ELSE
+      PRINT *, "Error: Element not found at position ", position
+      STOP
+    END IF
+  END FUNCTION GetClientsServedSinglyElementAtPosition
 
 END MODULE ClientsServedSinglyLinkedListModule

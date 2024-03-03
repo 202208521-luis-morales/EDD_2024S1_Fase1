@@ -1,0 +1,126 @@
+digraph G {
+  rankdir=LR
+  subgraph cluster_1 {
+    label = "Cola de recepción";
+    bgcolor="#f7d794"
+    node[shape=square]
+    Nodo1_1 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"];
+    Nodo1_2 [label="Cliente 1\nIMG-G: 2\nIMG-P: 2"];
+    
+    Nodo1_1 -> Nodo1_2 [dir=none]
+  }
+
+  subgraph cluster_2 {
+    label = "Lista de ventanillas";
+    bgcolor="#cf6a87";
+    node[shape=square]
+    
+    subgraph cluster_2_1 {
+        label = ""
+        color=white
+        Nodo2_1_0 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"]
+        Nodo2_1_1 [label="VENTANILLA 2"];
+        Nodo2_1_2 [label="IMG P"];
+        Nodo2_1_3 [label="IMG G"];
+        
+        Nodo2_1_0 -> Nodo2_1_1
+        Nodo2_1_1 -> Nodo2_1_2 [dir=none]
+        Nodo2_1_2 -> Nodo2_1_3 [dir=none]
+    }
+    
+    subgraph cluster_2_2 {
+        label = ""
+        color=white
+        Nodo2_2_0 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"]
+        Nodo2_2_1 [label="VENTANILLA 2"];
+        Nodo2_2_2 [label="IMG P"];
+        Nodo2_2_3 [label="IMG G"];
+        
+        Nodo2_2_0 -> Nodo2_2_1
+        Nodo2_2_1 -> Nodo2_2_2 [dir=none]
+        Nodo2_2_2 -> Nodo2_2_3 [dir=none]
+    }
+  }
+
+  subgraph cluster_3 {
+    label = "Lista de clientes en espera";
+    bgcolor="#63cdda"
+    node[shape=square]
+    
+    subgraph cluster_3_1 {
+        label = ""
+        color=white
+        Nodo3_1_1 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"];
+        Nodo3_1_2 [label="IMG P"];
+        Nodo3_1_3 [label="IMG G"];
+        
+        Nodo3_1_1 -> Nodo3_1_2 [dir=none]
+        Nodo3_1_2 -> Nodo3_1_3 [dir=none]
+    }
+    
+    subgraph cluster_3_2 {
+        label = ""
+        color=white
+        Nodo3_2_1 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"];
+        Nodo3_2_2 [label="IMG P"];
+        Nodo3_2_3 [label="IMG G"];
+        
+        Nodo3_2_1 -> Nodo3_2_2 [dir=none]
+        Nodo3_2_2 -> Nodo3_2_3 [dir=none]
+    }
+    
+    subgraph cluster_3_3 {
+        label = ""
+        color=white
+        Nodo3_3_1 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"];
+        Nodo3_3_2 [label="IMG P"];
+        Nodo3_3_3 [label="IMG G"];
+        
+        Nodo3_3_1 -> Nodo3_3_2 [dir=none]
+        Nodo3_3_2 -> Nodo3_3_3 [dir=none]
+    }
+    
+    Nodo3_1_1 -> Nodo3_2_1
+    Nodo3_2_1 -> Nodo3_3_1
+    Nodo3_3_1 -> Nodo3_1_1
+  }
+
+  subgraph cluster_4 {
+    label = "Cola de impresoras";
+    bgcolor="#786fa6"
+    node[shape=square]
+    subgraph cluster_4_1 {
+        label = ""
+        color=white
+        Nodo4_1_1 [label="IMPRESORA GRANDE"];
+        Nodo4_1_2 [label="IMG P"];
+        Nodo4_1_3 [label="IMG G"];
+        
+        Nodo4_1_1 -> Nodo4_1_2 [dir=none]
+        Nodo4_1_2 -> Nodo4_1_3 [dir=none]
+    }
+    
+    subgraph cluster_4_2 {
+        label = ""
+        color=white
+        Nodo4_2_1 [label="IMPRESORA PEQUEÑA"];
+        Nodo4_2_2 [label="IMG P"];
+        Nodo4_2_3 [label="IMG G"];
+        
+        Nodo4_2_1 -> Nodo4_2_2 [dir=none]
+        Nodo4_2_2 -> Nodo4_2_3 [dir=none]
+    }
+  }
+
+  subgraph cluster_5 {
+    label = "Clientes atendidos";
+    bgcolor="#55efc4"
+    node[shape=square]
+    
+    Nodo5_1 [label="Cliente 0\nIMG-G: 0\nIMG-P: 3"];
+    Nodo5_2 [label="Cliente 1\nIMG-G: 2\nIMG-P: 2"];
+    
+    Nodo5_1 -> Nodo5_2
+  }
+
+}

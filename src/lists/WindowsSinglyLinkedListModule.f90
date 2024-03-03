@@ -68,34 +68,6 @@ CONTAINS
     END IF
   END SUBROUTINE WindowsSinglyGetElementAtPosition
 
-  SUBROUTINE WindowsSinglyUpdateClient(list, position, result)
-    TYPE(WindowsSinglyLinkedList), INTENT(IN) :: list
-    INTEGER, INTENT(IN) :: position
-    type(Window), POINTER :: result
-    TYPE(Node), POINTER :: current
-    INTEGER :: i
-
-    IF (ASSOCIATED(list%head)) THEN
-      current => list%head
-
-      DO i = 1, position
-        IF (i == position) THEN
-          result => current%value
-          RETURN
-        END IF
-        IF (.NOT. ASSOCIATED(current%next)) THEN
-          result => NULL()
-          WRITE(*, *) 'Error: Position ', position, ' exceeds the list size.'
-          RETURN
-        END IF
-        current => current%next
-      END DO
-    ELSE
-      result => NULL()
-      WRITE(*, *) 'Error: The list is empty.'
-    END IF
-  END SUBROUTINE WindowsSinglyUpdateClient
-
   !SUBROUTINE SinglyPrintList(list)
   !  TYPE(WindowsSinglyLinkedList), INTENT(IN) :: list
   !  TYPE(Node), POINTER :: current

@@ -1,0 +1,51 @@
+digraph G {
+rankdir=LR
+subgraph cluster_5 {
+label = "Clientes atendidos";
+bgcolor="#55efc4"
+node[shape=square]
+Nodo5_1 [label="Cliente 1\nIMG-G: 2\nIMG-P: 1"];
+Nodo5_2 [label="Cliente 2\nIMG-G: 2\nIMG-P: 0"];
+Nodo5_1                    -> Nodo5_2                   
+}
+subgraph cluster_4 {
+label = "Cola de impresoras";
+bgcolor="#786fa6"
+node[shape=square]
+subgraph cluster_4_1 {
+label = ""
+color=white
+Nodo4_1_1 [label="IMPRESORA GRANDE"];
+}
+subgraph cluster_4_2 {
+label = ""
+color=white
+Nodo4_2_1 [label="IMPRESORA PEQUEÑA"];
+}
+}
+subgraph cluster_3 {
+label = "Lista de clientes en espera";
+bgcolor="#63cdda"
+node[shape=square]
+}
+subgraph cluster_2 {
+label = "Lista de ventanillas";
+bgcolor="#cf6a87";
+node[shape=square]
+subgraph cluster_2_1                   {
+label = ""
+color=white
+Nodo2_1_1 [label="VENTANILLA 1"];
+}
+subgraph cluster_2_2                   {
+label = ""
+color=white
+Nodo2_2_1 [label="VENTANILLA 2"];
+}
+}
+subgraph cluster_1 {
+label = "Cola de recepción";
+bgcolor="#f7d794"
+node[shape=square]
+}
+}

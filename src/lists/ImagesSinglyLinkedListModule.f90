@@ -37,19 +37,45 @@ CONTAINS
     END IF
   END SUBROUTINE ImagesSinglyInsertAtEnd
 
-  SUBROUTINE ImagesSinglyPrintList(list)
+  SUBROUTINE ImagesSinglyGetElementAtPosition(list, position, elementValue)
     TYPE(ImagesSinglyLinkedList), INTENT(IN) :: list
+    INTEGER, INTENT(IN) :: position
+    CHARACTER(:), ALLOCATABLE, INTENT(OUT) :: elementValue
+    TYPE(Node), POINTER :: current
+    INTEGER :: count
+
+    IF (ASSOCIATED(list%head) .AND. position > 0) THEN
+      current => list%head
+      count = 1
+
+      DO WHILE (ASSOCIATED(current) .AND. count < position)
+        current => current%next
+        count = count + 1
+      END DO
+
+      IF (ASSOCIATED(current) .AND. count == position) THEN
+        elementValue = current%value
+      ELSE
+        PRINT *, "Error: Element not found at position ", position
+        STOP
+      END IF
+    ELSE
+      PRINT *, "Error: List is empty or invalid position"
+      STOP
+    END IF
+  END SUBROUTINE ImagesSinglyGetElementAtPosition
+
+  FUNCTION ImagesSinglyListLength(list) RESULT(length)
+    TYPE(ImagesSinglyLinkedList), INTENT(IN) :: list
+    INTEGER :: length
     TYPE(Node), POINTER :: current
 
-    IF (ASSOCIATED(list%head)) THEN
-      current => list%head
-      DO WHILE (ASSOCIATED(current))
-        PRINT *, "Value:", current%value
-        current => current%next
-      END DO
-    ELSE
-      PRINT *, "The list is empty"
-    END IF
-  END SUBROUTINE ImagesSinglyPrintList
+    current => list%head
+    length = 0
 
+    DO WHILE (ASSOCIATED(current))
+      length = length + 1
+      current => current%next
+    END DO
+  END FUNCTION ImagesSinglyListLength
 END MODULE ImagesSinglyLinkedListModule

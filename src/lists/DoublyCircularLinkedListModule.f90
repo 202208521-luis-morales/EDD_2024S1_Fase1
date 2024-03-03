@@ -1,5 +1,7 @@
 MODULE DoublyCircularLinkedListModule
   use ClientOnHoldModule
+  use ImagesSinglyLinkedListModule
+
   IMPLICIT NONE
 
   TYPE :: DCLLNode
@@ -90,7 +92,9 @@ MODULE DoublyCircularLinkedListModule
     INTEGER, INTENT(IN) :: position
 
     TYPE(DCLLNode), POINTER :: current, previous, next
-    INTEGER :: i
+    INTEGER :: i, lnt
+
+    lnt = DoublyCircularLinkedListLength(list)
 
     IF (ASSOCIATED(list%head)) THEN
       current => list%head
@@ -108,12 +112,21 @@ MODULE DoublyCircularLinkedListModule
       previous%next => next
       next%previous => previous
 
-      IF (ASSOCIATED(current, list%head)) THEN
-        ! If deleting the head, update the head pointer
-        list%head => next
-      END IF
+      IF(lnt == 1) THEN
+        ! Check if only one element is left in the list
+        IF (ASSOCIATED(list%head) .AND. ASSOCIATED(list%head%next, list%head)) THEN
+          DEALLOCATE(list%head)
+          list%head => NULL()
+        END IF
+      ELSE
+        IF (ASSOCIATED(current, list%head)) THEN
+          ! If deleting the head, update the head pointer
+          list%head => next
+        END IF
 
-      DEALLOCATE(current)
+        DEALLOCATE(current)
+      END IF
+      
     ELSE
       WRITE(*, *) 'Error: The list is empty.'
     END IF
@@ -168,6 +181,62 @@ MODULE DoublyCircularLinkedListModule
       WRITE(*, *) 'Error: The list is empty.'
     END IF
   END SUBROUTINE DoublyCircularLinkedListSetGTAtPosition
+
+  SUBROUTINE DoublyCircularLinkedListSaveGAtPosition(list, position)
+    TYPE(DoublyCircularLinkedList), INTENT(OUT) :: list
+    CHARACTER(:), ALLOCATABLE :: dummyToSave
+    INTEGER, INTENT(IN) :: position
+    type(ClientOnHold) :: value
+    TYPE(DCLLNode), POINTER :: current
+    INTEGER :: i
+
+    dummyToSave = "IMG G"
+
+    IF (ASSOCIATED(list%head)) THEN
+      current => list%head
+      DO i = 1, position
+        IF (i == position) THEN
+          CALL ImagesSinglyInsertAtEnd(current%value%imagesLinkedList, dummyToSave)
+          RETURN
+        END IF
+        current => current%next
+        IF (ASSOCIATED(current,list%head)) THEN
+          WRITE(*, *) 'Error: Position ', position, ' exceeds the list size.'
+          RETURN
+        END IF
+      END DO
+    ELSE
+      WRITE(*, *) 'Error: The list is empty.'
+    END IF
+  END SUBROUTINE DoublyCircularLinkedListSaveGAtPosition
+
+  SUBROUTINE DoublyCircularLinkedListSavePAtPosition(list, position)
+    TYPE(DoublyCircularLinkedList), INTENT(OUT) :: list
+    CHARACTER(:), ALLOCATABLE :: dummyToSave
+    INTEGER, INTENT(IN) :: position
+    type(ClientOnHold) :: value
+    TYPE(DCLLNode), POINTER :: current
+    INTEGER :: i
+
+    dummyToSave = "IMG P"
+
+    IF (ASSOCIATED(list%head)) THEN
+      current => list%head
+      DO i = 1, position
+        IF (i == position) THEN
+          CALL ImagesSinglyInsertAtEnd(current%value%imagesLinkedList, dummyToSave)
+          RETURN
+        END IF
+        current => current%next
+        IF (ASSOCIATED(current,list%head)) THEN
+          WRITE(*, *) 'Error: Position ', position, ' exceeds the list size.'
+          RETURN
+        END IF
+      END DO
+    ELSE
+      WRITE(*, *) 'Error: The list is empty.'
+    END IF
+  END SUBROUTINE DoublyCircularLinkedListSavePAtPosition
 
   SUBROUTINE DoublyCircularLinkedListSetPTAtPosition(list, position)
     TYPE(DoublyCircularLinkedList), INTENT(OUT) :: list
