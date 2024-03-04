@@ -4,6 +4,9 @@ subgraph cluster_5 {
 label = "Clientes atendidos";
 bgcolor="#55efc4"
 node[shape=square]
+Nodo5_1 [label="Cliente 1\nIMG-G: 3\nIMG-P: 1"];
+Nodo5_2 [label="Cliente 2\nIMG-G: 1\nIMG-P: 3"];
+Nodo5_1                    -> Nodo5_2                   
 }
 subgraph cluster_4 {
 label = "Cola de impresoras";
@@ -24,34 +27,60 @@ subgraph cluster_3 {
 label = "Lista de clientes en espera";
 bgcolor="#63cdda"
 node[shape=square]
+subgraph cluster_3_1 {
+label = ""
+color=white
+Nodo3_1_1 [label="Cliente 3\nIMG-G: 2\nIMG-P: 2"];
+}
+Nodo3_1_1 -> Nodo3_1_1
 }
 subgraph cluster_2 {
 label = "Lista de ventanillas";
 bgcolor="#cf6a87";
 node[shape=square]
+subgraph cluster_2_1                   {
+label = ""
+color=white
+Nodo2_1_1 [label="VENTANILLA 1"];
+Nodo2_1_0  [label="Cliente 5\nIMG-G: 1\nIMG-P: 2"];
+Nodo2_1_0 -> Nodo2_1_1
+Nodo2_1_2 [label="IMG P"];
+Nodo2_1_1 -> Nodo2_1_2 [dir=none]
+Nodo2_1_3 [label="IMG P"];
+Nodo2_1_2 -> Nodo2_1_3 [dir=none]
+}
+subgraph cluster_2_2                   {
+label = ""
+color=white
+Nodo2_2_1 [label="VENTANILLA 2"];
+Nodo2_2_0  [label="Cliente 4\nIMG-G: 2\nIMG-P: 4"];
+Nodo2_2_0 -> Nodo2_2_1
+Nodo2_2_2 [label="IMG G"];
+Nodo2_2_1 -> Nodo2_2_2 [dir=none]
+Nodo2_2_3 [label="IMG G"];
+Nodo2_2_2 -> Nodo2_2_3 [dir=none]
+Nodo2_2_4 [label="IMG P"];
+Nodo2_2_3 -> Nodo2_2_4 [dir=none]
+Nodo2_2_5 [label="IMG P"];
+Nodo2_2_4 -> Nodo2_2_5 [dir=none]
+Nodo2_2_6 [label="IMG P"];
+Nodo2_2_5 -> Nodo2_2_6 [dir=none]
+Nodo2_2_7 [label="IMG P"];
+Nodo2_2_6 -> Nodo2_2_7 [dir=none]
+}
 }
 subgraph cluster_1 {
 label = "Cola de recepción";
 bgcolor="#f7d794"
 node[shape=square]
-Nodo1_1                    [label="Cliente 1\nIMG-G: 3\nIMG-P: 1"];
-Nodo1_2                    [label="Cliente 2\nIMG-G: 1\nIMG-P: 3"];
+Nodo1_1                    [label="Cliente 6\nIMG-G: 3\nIMG-P: 1"];
+Nodo1_2                    [label="Cliente 7\nIMG-G: 3\nIMG-P: 1"];
 Nodo1_1                    -> Nodo1_2                    [dir=none]
-Nodo1_3                    [label="Cliente 3\nIMG-G: 2\nIMG-P: 2"];
+Nodo1_3                    [label="Cliente 8\nIMG-G: 1\nIMG-P: 2"];
 Nodo1_2                    -> Nodo1_3                    [dir=none]
-Nodo1_4                    [label="Cliente 4\nIMG-G: 2\nIMG-P: 4"];
+Nodo1_4                    [label="Cliente 9\nIMG-G: 3\nIMG-P: 1"];
 Nodo1_3                    -> Nodo1_4                    [dir=none]
-Nodo1_5                    [label="Cliente 5\nIMG-G: 1\nIMG-P: 2"];
+Nodo1_5                    [label="Cliente 10\nIMG-G: 1\nIMG-P: 3"];
 Nodo1_4                    -> Nodo1_5                    [dir=none]
-Nodo1_6                    [label="Cliente 6\nIMG-G: 3\nIMG-P: 1"];
-Nodo1_5                    -> Nodo1_6                    [dir=none]
-Nodo1_7                    [label="Cliente 7\nIMG-G: 3\nIMG-P: 1"];
-Nodo1_6                    -> Nodo1_7                    [dir=none]
-Nodo1_8                    [label="Cliente 8\nIMG-G: 1\nIMG-P: 2"];
-Nodo1_7                    -> Nodo1_8                    [dir=none]
-Nodo1_9                    [label="Cliente 9\nIMG-G: 3\nIMG-P: 1"];
-Nodo1_8                    -> Nodo1_9                    [dir=none]
-Nodo1_10                   [label="Cliente 10\nIMG-G: 1\nIMG-P: 3"];
-Nodo1_9                    -> Nodo1_10                   [dir=none]
 }
 }
